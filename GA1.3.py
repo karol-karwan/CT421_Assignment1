@@ -1,8 +1,7 @@
 import random
 import csv
 
-#solution for 1.3 ONE MAX PROBLEM
-
+#solution for 1.3 Deceptive landscape
 # Parameters
 generations = 100
 solutions = 100

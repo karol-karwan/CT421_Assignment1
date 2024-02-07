@@ -2,7 +2,7 @@ import random
 import csv
 #solution for part b. 
 
-population_size = 100
+solutions = 50
 generations = 50
 mutation_rate = 0.1
 BPP_instances = [
@@ -44,14 +44,14 @@ def run_genetic_algorithm(BPP_instances):
         _, bin_capacity, *items = BPP
         num_bins = max(len(items), 50)  
 
-        population = [[random.randint(0, num_bins-1) for _ in range(len(items))] for _ in range(population_size)]
+        population = [[random.randint(0, num_bins-1) for _ in range(len(items))] for _ in range(solutions)]
 
         for generation in range(generations):
             fitnesses = [fitness(ind, items, bin_capacity) for ind in population]
             new_population = []
 
             #tournament selection, while loop will keep trying to find a solution until we reach the limit, in this case solutions = 100
-            while len(new_population) < population_size:
+            while len(new_population) < solutions:
                 parents = random.choices(population, weights=[f - min(fitnesses) + 1 for f in fitnesses], k=2)
                 offspring1, offspring2 = parents[0][:], parents[1][:] 
                 point = random.randint(1, len(items) - 1)
@@ -62,7 +62,7 @@ def run_genetic_algorithm(BPP_instances):
                         offspring[random.randint(0, len(items)-1)] = random.randint(0, num_bins-1)
                     new_population.append(offspring)
 
-            population = new_population[:population_size]
+            population = new_population[:solutions]
             best_fitness = max(fitnesses)
             #print(best_fitness)
             with open('output_partb_BPP5.csv', 'a', newline='') as file:
