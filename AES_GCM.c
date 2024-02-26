@@ -1,11 +1,6 @@
-#include <openssl/evp.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "header20320721.h"
 
-#define AES_128_KEY_SIZE 16
+#define AES_128_KEY_SIZE 16 // change from 16 -> 32 for 128 -> 256 bit. ALso chance AES_128 to AES_256
 #define AES_GCM_IV_LENGTH 12
 #define AES_GCM_TAG_LENGTH 16
 #define BUFFER_SIZE 1024 
@@ -20,6 +15,7 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, uns
     int len;
     int ciphertext_len;
 
+    //we haVe to handle many different scenarios here, if not we get segmentation errors.
     if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
 
     if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_128_gcm(), NULL, NULL, NULL)) handleErrors();
@@ -68,8 +64,7 @@ int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *tag, u
         plaintext_len += len;
         return plaintext_len;
     } else {
-        printf("Decryption failed\n");
-        return -1; // Indicate failure
+        return -1; 
     }
 }
 
@@ -78,12 +73,14 @@ int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *tag, u
 int main(void) {
     clock_t start, end;
     double cpu_time;
+    //instantiate various variables that are used by GCM mode. Sizes are defined at the top of the file.
     unsigned char key[AES_128_KEY_SIZE];
     unsigned char iv[AES_GCM_IV_LENGTH];
     unsigned char tag[AES_GCM_TAG_LENGTH];
     unsigned char buffer[BUFFER_SIZE];
-    unsigned char ciphertext[BUFFER_SIZE + AES_GCM_TAG_LENGTH]; // Allocate space for potential expansion
+    unsigned char ciphertext[BUFFER_SIZE + AES_GCM_TAG_LENGTH];
 
+    //can be a set value also.
     RAND_bytes(key, sizeof(key));
     RAND_bytes(iv, sizeof(iv));
 
@@ -102,7 +99,7 @@ int main(void) {
         ciphertext_len = encrypt(buffer, bytes_read, key, iv, ciphertext, tag);
         fwrite(ciphertext, 1, ciphertext_len, encryptedfile);
     }
-    // Write the tag at the end of the file
+    //we can write the tag at the end as its useful when decrypting.
     fwrite(tag, 1, AES_GCM_TAG_LENGTH, encryptedfile);
 
     while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, file)) > 0) {

@@ -1,12 +1,7 @@
-#include <openssl/evp.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "header20320721.h"
 
 #define KEY_SIZE 32
-#define IV_SIZE 12 // GCM recommends a 12-byte IV for efficiency
+#define IV_SIZE 12 
 #define BUFFER_SIZE 1024
 #define TAG_SIZE 16
 
@@ -29,20 +24,20 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, uns
 
     if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
 
-    // Initialize the encryption operation for ARIA-128-GCM
+    
     if(1 != EVP_EncryptInit_ex(ctx, EVP_aria_256_gcm(), NULL, NULL, NULL)) handleErrors();
+
     if(1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, IV_SIZE, NULL)) handleErrors();
+
     if(1 != EVP_EncryptInit_ex(ctx, NULL, NULL, key, iv)) handleErrors();
 
-    // Provide the message to be encrypted, and obtain the encrypted output
+ 
     if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len)) handleErrors();
     ciphertext_len = len;
 
-    // Finalize the encryption
     if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) handleErrors();
     ciphertext_len += len;
 
-    // Get the tag
     if(1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, TAG_SIZE, tag)) handleErrors();
 
     EVP_CIPHER_CTX_free(ctx);
@@ -58,19 +53,17 @@ int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *tag, u
 
     if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
 
-    // Initialize the decryption operation for ARIA-128-GCM
     if(1 != EVP_DecryptInit_ex(ctx, EVP_aria_256_gcm(), NULL, NULL, NULL)) handleErrors();
+
     if(1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, IV_SIZE, NULL)) handleErrors();
+
     if(1 != EVP_DecryptInit_ex(ctx, NULL, NULL, key, iv)) handleErrors();
 
-    // Provide the message to be decrypted, and obtain the plaintext output
     if(1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len)) handleErrors();
     plaintext_len = len;
 
-    // Set expected tag value
     if(1 != EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, TAG_SIZE, tag)) handleErrors();
 
-    // Finalize the decryption
     ret = EVP_DecryptFinal_ex(ctx, plaintext + len, &len);
     if(ret > 0) {
         plaintext_len += len;
@@ -79,7 +72,7 @@ int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *tag, u
     } else {
         handleErrors();
         EVP_CIPHER_CTX_free(ctx);
-        return -1; // Indicate decryption failure
+        return -1; 
     }
 }
 

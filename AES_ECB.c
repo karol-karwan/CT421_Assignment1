@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <time.h>
+
 #include "header20320721.h"
 
+//initialising key for encryption
 void initialize_aes_key_enc(AES_KEY *aes_key) {
     //unsigned char key_bits128[16]; //128 bits
    unsigned char key_bits256[32]; //256bits
@@ -85,6 +85,7 @@ int main(){
        
     end = clock();
 
+    //stop the time after calculations.
     cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("\nCPU TIME USED: %f", cpu_time);
 

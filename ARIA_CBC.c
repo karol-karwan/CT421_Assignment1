@@ -1,13 +1,8 @@
-#include <openssl/evp.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "header20320721.h"
 
 #define KEY_SIZE 16        
 #define IV_SIZE 16        
-#define BUFFER_SIZE 1024   // Buffer size for file operations
+#define BUFFER_SIZE 1024   /
 
 void handleErrors(void) {
     ERR_print_errors_fp(stderr);
@@ -26,6 +21,7 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, uns
     int len;
     int ciphertext_len;
 
+    //similar to AES_GCM.c, have to check alot of different scenarios to avoid segmentation error.
     if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
 
     EVP_EncryptInit_ex(ctx, EVP_aria_128_cbc(), NULL, key, iv);
@@ -91,9 +87,9 @@ int main(void) {
         fwrite(processed, 1, processed_len, encryptedfile);
     }
 
-  // while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, encryptedfile)) > 0) {
-   //   processed_len = decrypt(buffer, bytes_read, key, iv, processed);
-   //}
+  while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, encryptedfile)) > 0) {
+    processed_len = decrypt(buffer, bytes_read, key, iv, processed);
+   }
 
     end = clock();
     cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;

@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <time.h>
+
 #include "header20320721.h"
 
+//initialise the aes_key for encryption
 void initialize_aes_key_enc(AES_KEY *aes_key) {
    //unsigned char key_bits128[16]; //128 bits
    unsigned char key_bits256[32]; //256bits
@@ -52,9 +52,8 @@ unsigned char iv[AES_BLOCK_SIZE];
 if (!RAND_bytes(iv, sizeof(iv))) {
     printf("Error generating IV");
     exit(1);
+ }
 }
-}
-
 
 int main(){
     clock_t start, end;
@@ -85,7 +84,7 @@ int main(){
 
    
 
-    //encrypt the file 
+    //encrypt the file and save the result into encryptedfile
     while ((bytesRead = fread(buffer, 1, bufferSize, file)) > 0) {
         encrypt_cbc(&aes_key128, buffer, encrypted, bytesRead,&iv);
         fwrite(encrypted, 1, bytesRead, encryptedfile);
@@ -98,6 +97,7 @@ int main(){
        
     end = clock();
 
+    //after calculations stop the clock and print time taken.
     cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("\nCPU TIME USED: %f", cpu_time);
 

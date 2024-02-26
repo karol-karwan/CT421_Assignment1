@@ -1,9 +1,4 @@
-#include <openssl/evp.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "header20320721.h"
 
 #define KEY_SIZE 16 //32 for 256 bit
 #define BUFFER_SIZE 1024 //1kb
@@ -26,7 +21,7 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, uns
     int ciphertext_len;
 
     if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
-
+    //change from aria_128 -> aria_256 for 256 bit
     EVP_EncryptInit_ex(ctx, EVP_aria_128_ecb(), NULL, key, NULL);
 
     if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len)) handleErrors();
@@ -71,8 +66,6 @@ int main(void) {
     unsigned char processed[BUFFER_SIZE + EVP_MAX_BLOCK_LENGTH]; 
     int processed_len;
 
-    // Encryption
-   
     FILE *file = fopen("10MB.txt", "rb");
     //FILE *file = fopen("100MB.txt", "rb");
     FILE *encryptedfile = fopen("Encrypted10MB.txt", "wb");

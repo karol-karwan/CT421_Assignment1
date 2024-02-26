@@ -1,9 +1,4 @@
-#include <openssl/evp.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "header20320721.h"
 
 #define KEY_SIZE 16 //32 for 256 bit
 #define BUFFER_SIZE 1024 //1kb
@@ -27,14 +22,11 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, uns
 
     if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
 
-    // Initialize the encryption operation. Use Camellia in ECB mode
     if(1 != EVP_EncryptInit_ex(ctx, EVP_camellia_128_ecb(), NULL, key, NULL)) handleErrors();
 
-    // Provide the message to be encrypted, and obtain the encrypted output.
     if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len)) handleErrors();
     ciphertext_len = len;
 
-    // Finalize the encryption. Further ciphertext bytes may be written at this stage.
     if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) handleErrors();
     ciphertext_len += len;
 
@@ -52,23 +44,20 @@ int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, u
 
     if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
 
-    // Initialize the decryption operation. Use Camellia in ECB mode
     if(1 != EVP_DecryptInit_ex(ctx, EVP_camellia_128_ecb(), NULL, key, NULL)) handleErrors();
 
-    // Provide the message to be decrypted, and obtain the plaintext output
     if(1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len)) handleErrors();
     plaintext_len = len;
 
-    // Finalize the decryption. Further plaintext bytes may be written at this stage
     ret = EVP_DecryptFinal_ex(ctx, plaintext + len, &len);
     if(ret > 0) {
         plaintext_len += len;
         EVP_CIPHER_CTX_free(ctx);
-        return plaintext_len; // Decryption successful
+        return plaintext_len; 
     } else {
-        handleErrors(); // Decryption failed
+        handleErrors(); 
         EVP_CIPHER_CTX_free(ctx);
-    
+        return -1;
     }
 }
 
@@ -83,7 +72,6 @@ int main(void) {
     unsigned char processed[BUFFER_SIZE + EVP_MAX_BLOCK_LENGTH]; 
     int processed_len;
 
-    // Encryption
    
     FILE *file = fopen("10MB.txt", "rb");
    // FILE *file = fopen("100MB.txt", "rb");
